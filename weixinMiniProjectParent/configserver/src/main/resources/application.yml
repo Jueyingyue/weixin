@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: config-server # 应用名称
+  #cloud:
+   # config:
+    #  server:
+     #   git:
+      #    url: https://github.com/imrhelloworld/config-repo # 配置文件仓库地址
+       #   username: # github等产品的登录账户
+        #  password: # github等产品的登录账户
+        #  default-lable: master # 配置文件所在的分支
+        #  search-paths: # 配置文件的根目录
