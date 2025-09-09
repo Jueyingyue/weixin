@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liyue.weixin.article.infra.persistent.mapper.ArticleFavoriteMapper">
+
+    <!-- 插入收藏记录 -->
+    <insert id="insert" parameterType="com.liyue.weixin.article.domain.entity.ArticleFavoriteDO">
+        INSERT INTO article_favorites (user_id, article_id, favorited_at)
+        VALUES (#{userId}, #{articleId}, NOW())
+    </insert>
+
+    <!-- 删除收藏记录（取消收藏） -->
+    <delete id="deleteByUserAndArticle">
+        DELETE FROM article_favorites
+        WHERE user_id = #{userId} AND article_id = #{articleId}
+    </delete>
+
+    <!-- 查询某文章的收藏总数 -->
+    <select id="countByArticleId" resultType="int">
+        SELECT COUNT(*) FROM article_favorites WHERE article_id = #{articleId}
+    </select>
+
+    <!-- 查询某用户是否收藏过某文章 -->
+    <select id="selectByUserAndArticle" resultType="com.liyue.weixin.article.domain.entity.ArticleFavoriteDO">
+        SELECT * FROM article_favorites
+        WHERE user_id = #{userId} AND article_id = #{articleId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询某文章的所有标签ID（或通过联表查标签名称） -->
+    <select id="selectByArticleId" resultType="int">
+        SELECT tag_id FROM article_tag WHERE article_id = #{articleId}
+    </select>
+</mapper>

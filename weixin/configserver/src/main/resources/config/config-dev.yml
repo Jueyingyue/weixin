@@ -1,0 +1,59 @@
+############开发环境配置文件###################
+
+registry:
+  url: http://${host:localhost}:8080/eureka/  #注册中心的地址与端口，方便给其他微服务的配置使用
+
+## spring配置
+spring:
+  datasource: #数据库配置
+    url: jdbc:mysql://127.0.0.1:3306/weixin?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&autoReconnectForPools=true&noAccessToProcedureBodies=true&testOnBorrow=true&validationQuery=select 1
+    username: root
+    password: 123456
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database: mysql
+    show-sql: false
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true
+          paths: /**
+  redis: ## Redis配置
+    host: 127.0.0.1
+    port: 6379
+    password: password
+    database: 15
+    pool:
+      max-active: 100
+      min-idle: 2
+      max-idle: 2
+      max-wait: 500
+
+#druid connect pool
+db:
+  druid:
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    filters: stat,wall
+    max-active: 60
+    initial-size: 10
+    max-wait: 60000
+    min-idle: 10
+    time-between-eviction-runs-millis: 600000
+    min-evictable-idle-time-millis: 300000
+    test-while-idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    max-open-prepared-statements: 20
+
+# 自定义配置
+sysconfig:
+  isDebug: true  #是否Debug
+  swagger: true  #开启swagger

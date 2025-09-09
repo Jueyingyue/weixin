@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyue.weixin.aiConfig.infra.persistent.mapper.AiConfigMapper">
+    <cache
+            eviction="LRU"
+            flushInterval="60000"
+            size="1024"
+            readOnly="true"/>
+    <resultMap id="AiConfigDOMap" type="com.liyue.weixin.aiConfig.domain.entity.AiConfigDO">
+        <id property="id" column="id"/>
+        <result property="aiName" column="ai_name"/>
+        <result property="aiToken" column="ai_token"/>
+        <result property="aiModel" column="ai_model"/>
+        <result property="aiUrl" column="ai_url"/>
+        <result property="aiHeadersJson" column="ai_headers_json"/>
+        <result property="aiJsonBodyJson" column="ai_jsonBody_json"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="AiConfigDOMap">
+        SELECT * FROM ai_config
+    </select>
+
+    <select id="selectById" resultMap="AiConfigDOMap" parameterType="java.lang.Integer">
+        SELECT * FROM ai_config WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.liyue.weixin.aiConfig.domain.entity.AiConfigDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_config (ai_name, ai_token, ai_model, ai_url, ai_headers_json, ai_jsonBody_json)
+        VALUES (#{aiName}, #{aiToken}, #{aiModel}, #{aiUrl}, #{aiHeadersJson}, #{aiJsonBodyJson})
+    </insert>
+
+    <update id="update" parameterType="com.liyue.weixin.aiConfig.domain.entity.AiConfigDO">
+        UPDATE ai_config
+        SET ai_name = #{aiName}, ai_token = #{aiToken}, ai_model = #{aiModel},
+            ai_url = #{aiUrl}, ai_headers_json = #{aiHeadersJson}, ai_jsonBody_json = #{aiJsonBodyJson}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE FROM ai_config WHERE id = #{id}
+    </delete>
+</mapper>

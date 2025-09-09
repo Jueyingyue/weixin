@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyue.weixin.userInfo.infra.persistent.mapper.UserInfoMapper">
+    <cache
+            eviction="LRU"
+            flushInterval="60000"
+            size="1024"
+            readOnly="true"/>
+    <!-- 定义结果映射：将数据库字段映射到 UserInfoDO 对象的属性 -->
+    <resultMap id="UserInfoDOMap" type="com.liyue.weixin.userInfo.domain.entity.UserInfoDO">
+        <id column="id" property="id" javaType="java.lang.Long" />
+        <result column="openid" property="openid" javaType="java.lang.String" />
+        <result column="unionid" property="unionid" javaType="java.lang.String" />
+        <result column="nick_name" property="nickName" javaType="java.lang.String" />
+        <result column="avatar_url" property="avatarUrl" javaType="java.lang.String" />
+        <result column="gender" property="gender" javaType="java.lang.Integer" />
+        <result column="country" property="country" javaType="java.lang.String" />
+        <result column="province" property="province" javaType="java.lang.String" />
+        <result column="city" property="city" javaType="java.lang.String" />
+        <result column="language" property="language" javaType="java.lang.String" />
+        <result column="last_login_time" property="lastLoginTime" javaType="java.time.LocalDateTime" />
+        <result column="profession" property="profession" javaType="java.lang.String" />
+        <result column="biz_type_code" property="bizTypeCode" javaType="java.lang.String" />
+        <result column="index_type" property="indexType" javaType="java.lang.String" />
+        <result column="detail_id" property="detailId" javaType="java.lang.String" />
+        <result column="create_time" property="createTime" javaType="java.time.LocalDateTime" />
+        <result column="update_time" property="updateTime" javaType="java.time.LocalDateTime" />
+    </resultMap>
+
+    <!-- 根据 openid 查询用户信息 -->
+    <select id="selectByOpenid" resultMap="UserInfoDOMap">
+        SELECT * FROM user_profile WHERE openid = #{openid}
+    </select>
+
+    <!-- 插入用户信息 -->
+    <insert id="insert" parameterType="com.liyue.weixin.userInfo.domain.entity.UserInfoDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_profile (
+            openid, unionid, nick_name, avatar_url, gender, country, province, city,
+            language, last_login_time, profession, biz_type_code, index_type, detail_id,
+            create_time, update_time
+        ) VALUES (
+            #{openid}, #{unionid}, #{nickName}, #{avatarUrl}, #{gender}, #{country}, #{province}, #{city},
+            #{language}, #{lastLoginTime}, #{profession}, #{bizTypeCode}, #{indexType}, #{detailId},
+            #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <!-- 更新用户信息（根据主键 id 更新，建议根据业务需求调整 WHERE 条件） -->
+    <update id="updateById" parameterType="com.liyue.weixin.userInfo.domain.entity.UserInfoDO">
+        UPDATE user_profile SET
+            openid = #{openid},
+            unionid = #{unionid},
+            nick_name = #{nickName},
+            avatar_url = #{avatarUrl},
+            gender = #{gender},
+            country = #{country},
+            province = #{province},
+            city = #{city},
+            language = #{language},
+            last_login_time = #{lastLoginTime},
+            profession = #{profession},
+            biz_type_code = #{bizTypeCode},
+            index_type = #{indexType},
+            detail_id = #{detailId},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据 id 查询用户信息 -->
+    <select id="selectById" resultMap="UserInfoDOMap">
+        SELECT * FROM user_profile WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有用户（一般用于管理端，慎用） -->
+    <select id="selectAll" resultMap="UserInfoDOMap">
+        SELECT * FROM user_profile
+    </select>
+
+    <!-- 根据 id 删除用户（如需软删，请自行添加 is_deleted 字段逻辑） -->
+    <delete id="deleteById">
+        DELETE FROM user_profile WHERE id = #{id}
+    </delete>
+
+</mapper>

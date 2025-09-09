@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyue.weixin.questionanswer.infra.persistent.mapper.QuestionAnswerMapper">
+
+    <resultMap id="AnswerResultMap" type="com.liyue.weixin.questionanswer.domain.entity.QuestionAnswer">
+        <id column="id" property="answerid" jdbcType="INTEGER"/>
+        <result column="answer_user_id" property="answerUserId" jdbcType="VARCHAR"/>
+        <result column="answer" property="answer" jdbcType="LONGVARCHAR"/>
+        <result column="answer_time" property="answerTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.liyue.weixin.questionanswer.domain.entity.QuestionAnswer" useGeneratedKeys="true" keyProperty="answerid">
+        INSERT INTO answer (answer_user_id, answer, answer_time)
+        VALUES (#{answerUserId,jdbcType=VARCHAR}, #{answer,jdbcType=LONGVARCHAR}, #{answerTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertQuestionAndRel" parameterType="com.liyue.weixin.questionanswer.domain.entity.QuestionAnswerRelationDO" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO question_answer_relation (question_id, answer_id)
+    VALUES (#{questionId, jdbcType=VARCHAR}, #{answerId, jdbcType=VARCHAR})
+   </insert>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="AnswerResultMap">
+        SELECT id, answer_user_id, answer, answer_time
+        FROM answer
+        WHERE id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <update id="updateByPrimaryKey" parameterType="com.liyue.weixin.questionanswer.domain.entity.QuestionAnswer">
+        UPDATE answer
+        SET answer_user_id = #{answerUserId,jdbcType=VARCHAR},
+            answer = #{answer,jdbcType=LONGVARCHAR},
+            answer_time = #{answerTime,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM answer
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+
+</mapper>

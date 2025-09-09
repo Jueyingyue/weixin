@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyue.weixin.article.infra.persistent.mapper.ArticleTagMapper">
+
+    <!-- 基础结果映射（可选，如果使用实体类 ArticlesTagRel） -->
+    <resultMap id="baseResultMap" type="com.liyue.weixin.article.domain.entity.ArticleTagDO">
+        <result column="article_id" property="articleId" jdbcType="BIGINT" />
+        <result column="tag_id" property="id" jdbcType="INTEGER" />
+    </resultMap>
+
+    <insert id="insert" parameterType="com.liyue.weixin.article.domain.entity.ArticleTagDO">
+        INSERT INTO article_tag (name, created_at, updated_at)
+        VALUES (#{name}, NOW(), NOW())
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM article_tag WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.liyue.weixin.article.domain.entity.ArticleTagDO">
+        UPDATE article_tag
+        SET name = #{name}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultType="com.liyue.weixin.article.domain.entity.ArticleTagDO">
+        SELECT * FROM article_tag WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultType="com.liyue.weixin.article.domain.entity.ArticleTagDO">
+        SELECT * FROM article_tag
+    </select>
+
+    <select id="selectByName" resultType="com.liyue.weixin.article.domain.entity.ArticleTagDO">
+        SELECT * FROM article_tag WHERE name = #{name}
+    </select>
+
+    <!-- ========== 文章标签关联表 article_tag 相关 SQL ========== -->
+
+    <!-- 保存文章与标签的关联关系（发布文章时保存标签） -->
+    <insert id="insertArticleTag"  parameterType="com.liyue.weixin.article.domain.entity.ArticleTagDO">
+        INSERT INTO articles_tag_rel (article_id, tag_id)
+        VALUES (#{articleId}, #{tagId})
+    </insert>
+
+    <!-- 根据ID查询文章详情 -->
+    <select id="findByArticleId" resultMap="baseResultMap">
+        SELECT tag_id,article_id
+        FROM articles_tag_rel
+        WHERE article_id = #{articleId}
+    </select>
+
+</mapper>

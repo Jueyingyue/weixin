@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>weixin</artifactId>
+		<groupId>com.weixin</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>provider_base</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR7</spring-cloud.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>com.alibaba.fastjson2</groupId>
+			<artifactId>fastjson2</artifactId>
+			<version>2.0.55</version>
+		</dependency>
+		<dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>5.8.11</version> <!-- 请使用最新版本 -->
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.30</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version> <!-- 使用最新的版本 -->
+		</dependency>
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<version>2.3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper</artifactId>
+			<version>5.3.3</version> <!-- 请使用最新稳定版本 -->
+		</dependency>
+		<dependency>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.commonmark</groupId>
+			<artifactId>commonmark</artifactId>
+			<version>0.21.0</version> <!-- 请使用最新版本 -->
+		</dependency>
+
+	</dependencies>
+
+</project>

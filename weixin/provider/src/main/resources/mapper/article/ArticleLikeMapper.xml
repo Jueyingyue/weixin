@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liyue.weixin.article.infra.persistent.mapper.ArticleLikeMapper">
+    <!-- ========== 点赞表 article_like 相关 SQL ========== -->
+
+    <!-- 插入点赞记录 -->
+    <insert id="insertLike" parameterType="com.liyue.weixin.article.domain.entity.ArticleLikeDO">
+        INSERT INTO article_likes (user_id, article_id, liked_at)
+        VALUES (#{userId}, #{articleId}, NOW())
+    </insert>
+
+    <!-- 删除点赞记录（取消点赞） -->
+    <delete id="deleteLike">
+        DELETE FROM article_likes
+        WHERE user_id = #{userId} AND article_id = #{articleId}
+    </delete>
+
+    <!-- 查询某文章的点赞总数 -->
+    <select id="countByArticleId" resultType="int">
+        SELECT COUNT(*) FROM article_likes WHERE article_id = #{articleId}
+    </select>
+
+    <!-- 查询某用户是否点过赞某文章 -->
+    <select id="hasLiked" resultType="com.liyue.weixin.article.domain.entity.ArticleLikeDO">
+        SELECT * FROM article_likes
+        WHERE user_id = #{userId} AND article_id = #{articleId}
+        LIMIT 1
+    </select>
+
+</mapper>

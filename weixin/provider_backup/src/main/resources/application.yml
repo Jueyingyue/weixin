@@ -1,0 +1,37 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: service-provider
+  datasource:
+    url: jdbc:mysql://localhost:3306/weixin?useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      pool-name: myHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+    mybatis-plus:
+      mapper-locations: classpath*:/mapper/**/*.xml
+      global-config:
+        db-config:
+          logic-delete-field: deleted
+          logic-delete-value: 1
+          logic-not-delete-value: 0
+        configuration:
+          map-underscore-to-camel-case: true
+          log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true

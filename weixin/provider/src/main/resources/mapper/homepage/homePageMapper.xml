@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyue.weixin.innerHomePage.infra.persistent.mapper.HomePageMapper">
+    <cache
+            eviction="LRU"
+            flushInterval="60000"
+    size="1024"
+    readOnly="true"/>
+
+    <resultMap id="menuResultMap" type="com.liyue.weixin.innerHomePage.domain.entity.MenuInfoDO">
+        <id property="bizTypeCode" column="biz_type_code"/>
+        <result property="bizType" column="biz_type"/>
+        <result property="bizTypeCnDesc" column="biz_type_cn_desc"/>
+        <result property="indexType" column="index_type"/>
+    </resultMap>
+
+    <resultMap id="questionsResultMap" type="com.liyue.weixin.innerHomePage.domain.entity.QuestionsDO">
+        <id property="bizTypeCode" column="biz_type_code"/>
+        <result property="bizType" column="biz_type"/>
+        <result property="questionNo" column="question_no"/>
+        <result property="questionText" column="question_text"/>
+    </resultMap>
+
+    <resultMap id="optionsResultMap" type="com.liyue.weixin.innerHomePage.domain.entity.OptionsDO">
+        <id property="bizTypeCode" column="biz_type_code"/>
+        <result property="bizType" column="biz_type"/>
+        <result property="questionNo" column="question_no"/>
+        <result property="optionLabel" column="option_label"/>
+        <result property="optionText" column="option_text"/>
+        <result property="optionScore" column="option_score"/>
+    </resultMap>
+
+    <resultMap id="testResultMap" type="com.liyue.weixin.innerHomePage.domain.entity.ResultConfigDO">
+        <id property="bizTypeCode" column="biz_type_code"/>
+        <result property="bizType" column="biz_type"/>
+        <result property="minScore" column="min_score"/>
+        <result property="maxScore" column="max_score"/>
+        <result property="content" column="content" />
+        <result property="reasoningContent" column="reasoning_content" />
+        <result property="resultDesc" column="result_desc"/>
+        <result property="resultType" column="result_type"/>
+    </resultMap>
+
+    <sql id="baseColumnList" >
+        biz_type_code, biz_type, biz_type_cn_desc, index_type
+    </sql>
+
+    <sql id="baseQuestionsList">
+        biz_type_code, biz_type, question_no, question_text
+    </sql>
+
+    <sql id="baseOptionsList">
+        biz_type_code, biz_type, question_no, option_label,option_text,option_score
+    </sql>
+
+    <sql id="testResultColumn">
+        biz_type_code, biz_type, max_score, min_score,result_desc,result_type,content,reasoning_content
+    </sql>
+
+    <select id="getHomePage" resultMap="menuResultMap">
+        SELECT
+        <include refid="baseColumnList"/>
+        FROM menu_info
+    </select>
+
+    <select id="getQuestions" resultMap="questionsResultMap" parameterType="String">
+        SELECT
+        <include refid="baseQuestionsList"/>
+        FROM perfect_test_questions where biz_type_code=#{bizTypeCode} AND biz_type=#{bizType}
+    </select>
+
+    <select id="getOptions" resultMap="optionsResultMap" parameterType="String">
+        SELECT
+        <include refid="baseOptionsList"/>
+        FROM perfect_test_options where biz_type_code=#{bizTypeCode} AND biz_type=#{bizType} AND question_no=#{questionNo}
+        order by option_label;
+    </select>
+
+    <select id="testResult" resultMap="testResultMap" >
+        SELECT
+        <include refid="testResultColumn"/>
+        from test_result where biz_type_code=#{bizTypeCode} AND biz_type=#{bizType} AND #{score} between min_score and max_score
+    </select>
+
+    <!-- 根据ID更新测试记录详情（全量更新，可根据需要调整字段） -->
+    <update id="update" parameterType="com.liyue.weixin.innerHomePage.domain.entity.ResultConfigVO">
+        UPDATE test_result
+        SET
+            content=#{content},
+            reasoning_content=#{reasoningContent}
+       where biz_type_code=#{bizTypeCode} AND biz_type=#{bizType} AND #{score} between min_score and max_score
+    </update>
+
+</mapper>
+

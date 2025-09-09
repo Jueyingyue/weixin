@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liyue.weixin.testRecordDetail.infra.persistent.mapper.TestRecordDetailMapper">
+
+    <!-- ===================== 实体与数据库表映射 ===================== -->
+    <resultMap id="TestRecordDetailDOResultMap" type="com.liyue.weixin.testRecordDetail.domain.entity.TestRecordDetailDO">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="bizType" column="biz_type" />
+        <result property="bizTypeCode" column="biz_type_code" />
+        <result property="score" column="score" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <!-- ===================== 插入操作 ===================== -->
+    <!-- 插入一条测试记录详情 -->
+    <insert id="insert" parameterType="com.liyue.weixin.testRecordDetail.domain.entity.TestRecordDetailDO">
+        INSERT INTO test_record_detail (
+            user_id,
+            biz_type,
+            biz_type_code,
+            score,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{userId},
+            #{bizType},
+            #{bizTypeCode},
+            #{score},
+            #{createdAt},
+            #{updatedAt}
+        )
+    </insert>
+
+    <!-- ===================== 根据主键查询 ===================== -->
+    <!-- 根据ID查询单条测试记录详情 -->
+    <select id="getDetailByOpenid" parameterType="java.lang.String" resultMap="TestRecordDetailDOResultMap">
+        SELECT 
+            id,
+            user_id,
+            biz_type,
+            biz_type_code,
+            score,
+            created_at,
+            updated_at
+        FROM test_record_detail
+        WHERE user_id = #{openid} order by created_at desc LIMIT 2;
+    </select>
+
+    <select id="getDetailByOpenidAndBizTypeCode"
+            parameterType="com.liyue.weixin.testRecordDetail.domain.entity.TestRecordDetailDO"
+            resultMap="TestRecordDetailDOResultMap">
+       select * from test_record_detail
+       where
+           (biz_type_code = #{bizTypeCode} or #{bizTypeCode} is null or #{bizTypeCode} = '')
+           and
+           (biz_type = #{bizType} or #{bizType} is null or #{bizType} = '')
+           and
+           user_id = #{userId}
+       order by created_at desc
+       limit 2
+  </select>
+
+
+    <!-- ===================== 根据主键更新 ===================== -->
+    <!-- 根据ID更新测试记录详情（全量更新，可根据需要调整字段） -->
+    <update id="update" parameterType="com.liyue.weixin.testRecordDetail.domain.entity.TestRecordDetailDO">
+        UPDATE test_record_detail
+        SET
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <!-- ===================== 根据主键删除 ===================== -->
+    <!-- 根据ID删除测试记录详情 -->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE FROM test_record_detail
+        WHERE id = #{id}
+    </delete>
+
+    <!-- ===================== 查询所有（可选） ===================== -->
+    <!-- 查询所有测试记录详情（慎用，建议按条件查询） -->
+    <select id="selectById" resultMap="TestRecordDetailDOResultMap">
+        SELECT * FROM test_record_detail WHERE id = #{id}
+    </select>
+
+    <!-- 分页查询用户测试记录及关联的测试结果 -->
+    <select id="queryTestRecordPage" resultType="com.liyue.weixin.testRecordDetail.domain.vo.TestRecordPageVO">
+        SELECT
+            a.id,
+            a.biz_type AS bizType,
+            a.biz_type_code AS bizTypeCode,
+            a.user_id AS userId,
+            a.score,
+            a.created_at AS createdAt,
+            b.result_desc,
+            b.result_type
+        FROM
+            test_record_detail a
+        INNER JOIN
+            test_result b
+            ON a.biz_type = b.biz_type
+            AND a.biz_type_code = b.biz_type_code
+            AND a.score BETWEEN b.min_score AND b.max_score
+        WHERE
+            a.user_id = #{openid}
+        ORDER BY
+            a.created_at DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 如果需要总条数，可以再提供一个查询方法（下面是额外补充，可选） -->
+    <select id="selectTestRecordPageCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(1)
+        FROM
+            test_record_detail a
+        INNER JOIN
+            test_result b
+            ON a.biz_type = b.biz_type
+            AND a.biz_type_code = b.biz_type_code
+            AND a.score BETWEEN b.min_score AND b.max_score
+        WHERE
+            a.user_id = #{userId}
+    </select>
+
+</mapper>

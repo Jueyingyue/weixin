@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liyue.weixin.article.infra.persistent.mapper.ArticleMapper">
+<!--    <cache-->
+<!--            eviction="LRU"-->
+<!--            flushInterval="60000"-->
+<!--            size="1024"-->
+<!--            readOnly="true"/>-->
+    <!-- ========== 文章表 article 相关 SQL ========== -->
+    <resultMap id="BaseResultMap" type="com.liyue.weixin.article.domain.vo.ArticleInfoVO"> <!-- 假设实体类为com.example.entity.Article，请根据实际包名修改 -->
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="LONGVARCHAR"/>
+        <result column="published_at" property="publishedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="view_count" property="viewCount" jdbcType="BIGINT"/>
+        <result column="name" property="category" jdbcType="VARCHAR"/>
+        <result column="tag_id" property="tagId" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!-- 根据ID查询文章详情 -->
+    <select id="selectById" resultType="com.liyue.weixin.article.domain.entity.ArticleDO">
+        SELECT *
+        FROM articles
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+       SELECT a.id,c.`name`,b.tag_id , a.user_id, a.title, a.content, a.published_at, a.created_at, a.updated_at,a.view_count FROM articles a
+        inner join articles_tag_rel b on a.id=b.article_id inner join article_tag c on b.tag_id=c.id
+        WHERE (user_id = #{userId} or #{userId} is null or #{userId} = '')
+         and (content like CONCAT('%', #{content}, '%')  or #{content} is null or #{content} = '')
+         and (tag_id =#{tagId}  or #{tagId} is null or #{tagId} = '')
+         and (a.id =#{articleId}  or #{articleId} is null or #{articleId} = '')
+         order by a.view_count,a.created_at desc  LIMIT #{offset}, #{pageSize};
+    </select>
+
+    <select id="selectFaLikesByUserId" resultMap="BaseResultMap">
+        select * from (
+        SELECT d.user_id,a.id,c.`name`,b.tag_id , a.title, a.content, a.published_at, d.liked_at as created_at, a.updated_at,a.view_count,'点赞' as type FROM articles a
+        inner join articles_tag_rel b on a.id=b.article_id inner join article_tag c on b.tag_id=c.id
+				inner join article_likes d on a.id=d.article_id WHERE (d.user_id = #{userId} or #{userId} is null or #{userId} = '')
+        union all
+        SELECT d.user_id,a.id,c.`name`,b.tag_id , a.title, a.content, a.published_at, d.favorited_at as created_at, a.updated_at,a.view_count,'收藏' as type FROM articles a
+                inner join articles_tag_rel b on a.id=b.article_id inner join article_tag c on b.tag_id=c.id
+                        inner join article_favorites d on a.id=d.article_id WHERE (d.user_id = #{userId} or #{userId} is null or #{userId} = '')
+        )a order by a.view_count,a.created_at desc LIMIT #{offset}, #{pageSize};
+    </select>
+
+    <select id="selectFaLikesCountByUserId" resultType="java.lang.Integer">
+        SELECT count(*) FROM (
+        SELECT d.user_id,a.id,c.`name`,b.tag_id , a.title, a.content, a.published_at, d.liked_at as created_at, a.updated_at,a.view_count,'点赞' as type FROM articles a
+        inner join articles_tag_rel b on a.id=b.article_id inner join article_tag c on b.tag_id=c.id
+				inner join article_likes d on a.id=d.article_id WHERE (d.user_id = #{userId} or #{userId} is null or #{userId} = '')
+        union all
+        SELECT d.user_id,a.id,c.`name`,b.tag_id , a.title, a.content, a.published_at, d.favorited_at as created_at, a.updated_at,a.view_count,'收藏' as type FROM articles a
+                inner join articles_tag_rel b on a.id=b.article_id inner join article_tag c on b.tag_id=c.id
+                        inner join article_favorites d on a.id=d.article_id WHERE (d.user_id = #{userId} or #{userId} is null or #{userId} = '')
+        )a
+    </select>
+
+    <!-- 如果需要总条数，可以再提供一个查询方法（下面是额外补充，可选） -->
+    <select id="selectPublishRecordPageCount" resultType="java.lang.Integer">
+        SELECT count(*) FROM articles a
+        inner join articles_tag_rel b on a.id=b.article_id inner join article_tag c on b.tag_id=c.id
+        WHERE (user_id = #{userId} or #{userId} is null or #{userId} = '')
+         and (content like CONCAT('%', #{content}, '%')  or #{content} is null or #{content} = '')
+         and (tag_id =#{tagId}  or #{tagId} is null or #{tagId} = '')
+         and (a.id =#{articleId}  or #{articleId} is null or #{articleId} = '')
+         order by a.view_count,a.created_at desc;
+    </select>
+
+    <!-- 保存文章（发布文章） -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.liyue.weixin.article.domain.entity.ArticleDO">
+        INSERT INTO articles (user_id, title, content, published_at, created_at, updated_at)
+        VALUES (#{userId}, #{title}, #{content}, #{publishedAt}, NOW(), NOW())
+    </insert>
+
+    <!-- ========== 标签表 tag 相关 SQL（可选）========== -->
+
+    <!-- 根据ID查询标签名称 -->
+    <select id="findTagNameById" resultType="string">
+        SELECT name FROM article_tag WHERE id = #{id}
+    </select>
+
+    <update id="update" parameterType="com.liyue.weixin.article.domain.entity.ArticleDO">
+      UPDATE articles
+      SET
+        title = #{title},
+        content = #{content},
+        view_count = #{viewCount},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE
+        id = #{id}
+   </update>
+
+</mapper>
+

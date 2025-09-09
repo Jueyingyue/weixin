@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyue.weixin.question.infra.persistent.mapper.QuestionMapper">
+    <resultMap id="BaseResultMap" type="com.liyue.weixin.question.domain.entity.QuestionDO">
+        <id column="id" property="id" />
+        <result column="question" property="question" />
+        <result column="ask_user_id" property="askUserId" />
+        <result column="ask_type_id" property="askTypeId" />
+        <result column="ask_time" property="askTime"  jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="AnswerResultMap" type="com.liyue.weixin.questionanswer.domain.entity.QuestionAnswer">
+        <id property="id" column="id" />
+        <result property="questionId" column="id" />
+        <result property="answerid" column="answerer_id" />
+        <result property="answerUserId" column="answer_user_id" />
+        <result property="answer" column="answer" />
+        <result property="answerTime" column="answer_time" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+
+    <resultMap id="ResultMap" type="com.liyue.weixin.questionanswer.domain.entity.QuestionAndAnswer">
+        <id column="id" property="id" />
+        <result column="question" property="question" />
+        <result column="ask_user_id" property="askUserId" />
+        <result column="ask_type_id" property="askTypeId" />
+        <result column="ask_time" property="askTime" jdbcType="TIMESTAMP" />
+        <result property="answerid" column="answerer_id" />
+        <result property="answerUserId" column="answer_user_id" />
+        <result property="answer" column="answer" />
+        <result property="answerTime" column="answer_time" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+
+    <select id="selectByUserId" parameterType="com.liyue.weixin.questionanswer.domain.entity.QuestionAndAnswer" resultMap="ResultMap">
+         select a.*,c.id as answerer_id,c.answer,c.answer_user_id,c.answer_time from (
+         SELECT * FROM question a where (ask_user_id = #{askUserId} or #{askUserId} is null or #{askUserId} = '')
+         and (question like CONCAT('%', #{question}, '%')  or #{question} is null or #{question} = '')
+         and (id =#{id}  or #{id} is null or #{id} = '')
+         and (a.ask_type_id =#{askTypeId}  or #{askTypeId} is null or #{askTypeId} = '')
+         order by a.id,a.ask_time desc  LIMIT #{offset}, #{pageSize}
+         ) a left join question_answer_relation b on a.id=b.question_id
+         left join answer c on b.answer_id=c.id
+    </select>
+
+    <select id="selectByUserIdCount" resultType="java.lang.Integer">
+         select COUNT(a.id) from (
+         SELECT * FROM question a where (ask_user_id = #{askUserId} or #{askUserId} is null or #{askUserId} = '')
+         and (question like CONCAT('%', #{question}, '%')  or #{question} is null or #{question} = '')
+         and (id =#{id}  or #{id} is null or #{id} = '')
+         and (a.ask_type_id =#{askTypeId}  or #{askTypeId} is null or #{askTypeId} = '')
+         ) a left join question_answer_relation b on a.id=b.question_id
+         left join answer c on b.answer_id=c.id
+    </select>
+
+
+    <insert id="insert" parameterType="com.liyue.weixin.question.domain.entity.QuestionDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO question (question, ask_user_id, ask_type_id, ask_time)
+        VALUES (#{question}, #{askUserId}, #{askTypeId}, #{askTime})
+    </insert>
+
+    <update id="update" parameterType="com.liyue.weixin.question.domain.entity.QuestionDO">
+        UPDATE question
+        SET question = #{question}, ask_user_id = #{askUserId}, ask_type_id = #{askTypeId}, ask_time = #{askTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="String">
+        DELETE FROM question WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="String" resultMap="BaseResultMap">
+        SELECT * FROM question WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM question
+    </select>
+</mapper>
