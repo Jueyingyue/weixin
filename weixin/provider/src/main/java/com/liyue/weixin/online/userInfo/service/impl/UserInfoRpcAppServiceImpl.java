@@ -18,14 +18,22 @@ import com.liyue.weixin.testRecordDetail.domain.entity.TestRecordDetailDO;
 import com.liyue.weixin.testRecordDetail.domain.vo.TestRecordPageVO;
 import com.liyue.weixin.userInfo.application.service.UserInfoAppService;
 import com.liyue.weixin.userInfo.domain.entity.UserInfoDO;
+import com.liyue.weixin.utils.IPutils;
 import com.liyue.weixin.utils.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -48,7 +56,6 @@ public class UserInfoRpcAppServiceImpl implements UserInfoRpcAppService {
     @Autowired
     private ArticleAppService articleAppService;
 
-
     @Override
     public UserInfoDO selectByOpenid(String openid) {
         return null;
@@ -66,7 +73,6 @@ public class UserInfoRpcAppServiceImpl implements UserInfoRpcAppService {
         }
         UserInfoRspDTO userInfoRspDTO=new UserInfoRspDTO();
         if(userInfoDO!=null){
-            long startime=System.currentTimeMillis();
             BeanUtil.copyProperties(userInfoReqDTO, userInfoDO, CopyOptions.create().setIgnoreNullValue(true));
             userInfoAppService.updateById(userInfoDO);
             BeanUtil.copyProperties(userInfoDO, userInfoRspDTO, CopyOptions.create().setIgnoreNullValue(true));
@@ -115,9 +121,37 @@ public class UserInfoRpcAppServiceImpl implements UserInfoRpcAppService {
     }
 
     @Override
-    @PostMapping(value = "/updateById")
-    public int updateById(@RequestBody UserInfoDO userInfo) {
-        return 0;
+    @PostMapping(value = "/upload-avatar")
+    public String updateById(@RequestParam("avatarUrl") MultipartFile file,
+                          @RequestParam("userId") String userId,@RequestParam("interfaceUrl") String interfaceUrl,@RequestParam("savePath") String savePath) {
+        if(StringUtils.isEmpty(userId)){
+             return new UserInfoDO().getAvatarUrl();
+        }else{
+            UserInfoDO userInfo=userInfoAppService.selectByOpenid(userId);
+            // 5. 保存文件到服务器本地
+            try {
+                // 3. 创建上传目录（如果不存在）
+                File uploadDir = new File(savePath);
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdirs();
+                }
+                Path uploadPath = Paths.get(savePath).toAbsolutePath();
+                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+
+                Path filePath = uploadPath.resolve(userId);
+                file.transferTo(filePath);
+                interfaceUrl= interfaceUrl+"uploads/" + userId;
+                userInfo.setAvatarUrl(interfaceUrl);
+                userInfoAppService.updateById(userInfo);
+
+               return  interfaceUrl;
+            } catch (IOException e) {
+                e.printStackTrace();
+
+                return new UserInfoDO().getAvatarUrl();
+            }
+        }
+
     }
 
     @Override

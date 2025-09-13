@@ -1,6 +1,7 @@
 package com.liyue.weixin.userInfo.domain.entity;
 
 import com.github.pagehelper.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -66,6 +67,9 @@ public class UserInfoDO implements Serializable {
     }
 
     public String getAvatarUrl() {
+        if(StringUtils.isBlank(avatarUrl)){
+            return "http://www.ceshixinli.xin:8081/uploads/FK.png";
+        }
         return avatarUrl;
     }
 
